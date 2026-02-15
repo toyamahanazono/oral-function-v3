@@ -583,7 +583,7 @@
   .flow-arrow { font-size: 0.9rem; transform: rotate(-90deg); }
 
   /* Manual/Tool toggle */
-  .view-toggle button { padding: 4px 6px; font-size: 0.7rem; }
+
 }
 
 /* === Ultra-wide (1024px+) さらに密に === */
@@ -871,9 +871,7 @@
 
 
 /* === Manual/Tool Toggle === */
-.view-toggle { display:flex; gap:4px; margin:0 0 8px; padding:0; }
-.view-toggle button { flex:1; padding:6px 8px; border:2px solid var(--teal); border-radius:8px; background:#fff; color:var(--teal); font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit; }
-.view-toggle button.active { background:var(--teal); color:#fff; }
+
 .test-compact .equip-badge,
 .test-compact .step,
 .test-compact .note,
@@ -883,7 +881,18 @@
 .test-compact img:not(.tci-img) { display:none !important; }
 .test-compact .card-body > p,
 .test-compact .method-panel > p { display:none !important; }
-.test-compact .view-toggle { display:flex !important; }
+.test-compact.show-manual .equip-badge,
+.test-compact.show-manual .step,
+.test-compact.show-manual .note,
+.test-compact.show-manual .warning,
+.test-compact.show-manual .info-box,
+.test-compact.show-manual .formula,
+.test-compact.show-manual img:not(.tci-img) { display:revert !important; }
+.test-compact.show-manual .card-body > p,
+.test-compact.show-manual .method-panel > p { display:revert !important; }
+.test-compact.show-manual .steps { display:block !important; }
+.manual-toggle-btn { width:100%; padding:10px; margin:12px 0 4px; border:2px solid var(--teal); border-radius:10px; background:#fff; color:var(--teal); font-size:0.8rem; font-weight:700; cursor:pointer; font-family:inherit; }
+.manual-toggle-btn.open { background:var(--teal); color:#fff; }
 
 /* === Compact Numpad === */
 .numpad-wrap { margin:4px 0; max-width:280px; }
@@ -1031,10 +1040,7 @@
   <div class="card">
     <div class="card-header bg1 c1">① 口腔衛生状態不良の評価</div>
     <div class="card-body">
-  <div class="view-toggle" style="padding:0 0 4px;">
-    <button class="active" onclick="toggleView(this,'test1','tool')">📏 測定</button>
-    <button onclick="toggleView(this,'test1','manual')">📖 マニュアル付き</button>
-  </div>
+
       <p style="font-size:0.8rem;margin-bottom:8px">以下の<strong>いずれか1つ</strong>の方法で評価します。</p>
       <div class="method-tabs">
         <button class="method-tab active" onclick="switchMethod(this,'m1a')">方法A：舌苔付着度（TCI）<br><span style="font-size:0.65rem;font-weight:400">※器材不要・推奨</span></button>
@@ -1177,6 +1183,8 @@
       </div>
     </div>
   </div>
+
+<button class="manual-toggle-btn" onclick="toggleManual('test1',this)">📖 マニュアルをみる</button>
 </div>
 
 <!-- ──── ② 口腔乾燥 ──── -->
@@ -1184,10 +1192,7 @@
   <div class="card">
     <div class="card-header bg2 c2">② 口腔乾燥の評価</div>
     <div class="card-body">
-  <div class="view-toggle" style="padding:0 0 4px;">
-    <button class="active" onclick="toggleView(this,'test2','tool')">📏 測定</button>
-    <button onclick="toggleView(this,'test2','manual')">📖 マニュアル付き</button>
-  </div>
+
       <p style="font-size:0.8rem;margin-bottom:8px">以下の<strong>いずれか1つ</strong>の方法で評価します。</p>
       <div class="method-tabs">
         <button class="method-tab active" onclick="switchMethod(this,'m2a')">方法A：口腔水分計<br><span style="font-size:0.65rem;font-weight:400">※簡便・推奨</span></button>
@@ -1350,6 +1355,8 @@
       </div>
     </div>
   </div>
+
+<button class="manual-toggle-btn" onclick="toggleManual('test2',this)">📖 マニュアルをみる</button>
 </div>
 
 <!-- ──── ③ 咬合力低下 ──── -->
@@ -1357,10 +1364,7 @@
   <div class="card">
     <div class="card-header bg3 c3">③ 咬合力低下の評価</div>
     <div class="card-body">
-  <div class="view-toggle" style="padding:0 0 4px;">
-    <button class="active" onclick="toggleView(this,'test3','tool')">📏 測定</button>
-    <button onclick="toggleView(this,'test3','manual')">📖 マニュアル付き</button>
-  </div>
+
       <p style="font-size:0.8rem;margin-bottom:8px">以下の<strong>いずれか1つ</strong>の方法で評価します。</p>
       <div class="method-tabs">
         <button class="method-tab active" onclick="switchMethod(this,'m3a')">方法A：咬合力計<br><span style="font-size:0.65rem;font-weight:400">※機器測定</span></button>
@@ -1501,6 +1505,8 @@
       </div>
     </div>
   </div>
+
+<button class="manual-toggle-btn" onclick="toggleManual('test3',this)">📖 マニュアルをみる</button>
 </div>
 
 <!-- ──── ④ 舌口唇運動機能低下 ──── -->
@@ -1508,10 +1514,7 @@
   <div class="card">
     <div class="card-header bg4 c4">④ 舌口唇運動機能低下の評価</div>
     <div class="card-body">
-  <div class="view-toggle" style="padding:0 0 4px;">
-    <button class="active" onclick="toggleView(this,'test4','tool')">📏 測定</button>
-    <button onclick="toggleView(this,'test4','manual')">📖 マニュアル付き</button>
-  </div>
+
             <!-- ===== 計測ツール ===== -->
       <div style="margin-top:20px; padding-top:16px; border-top:2px dashed #E0E0E0;">
         <div style="text-align:center;font-size:1rem;font-weight:700;color:#E65100;margin-bottom:4px;">🎤 オーラルディアドコキネシス計測ツール</div>
@@ -1624,6 +1627,8 @@
 
     </div>
   </div>
+
+<button class="manual-toggle-btn" onclick="toggleManual('test4',this)">📖 マニュアルをみる</button>
 </div>
 
 <!-- ──── ⑤ 低舌圧 ──── -->
@@ -1631,10 +1636,7 @@
   <div class="card">
     <div class="card-header bg5 c5">⑤ 低舌圧の評価</div>
     <div class="card-body">
-  <div class="view-toggle" style="padding:0 0 4px;">
-    <button class="active" onclick="toggleView(this,'test5','tool')">📏 測定</button>
-    <button onclick="toggleView(this,'test5','manual')">📖 マニュアル付き</button>
-  </div>
+
             <div class="app-input-section">
         <div class="app-input-title" style="color:#C2185B;">📝 測定値入力</div>
         <div class="app-input-subtitle">舌圧計の測定値を入力</div>
@@ -1709,6 +1711,8 @@
       <div class="note">プローブは使い捨てです。患者ごとに新しいプローブを使用してください。</div>
     </div>
   </div>
+
+<button class="manual-toggle-btn" onclick="toggleManual('test5',this)">📖 マニュアルをみる</button>
 </div>
 
 <!-- ──── ⑥ 咀嚼機能低下 ──── -->
@@ -1716,10 +1720,7 @@
   <div class="card">
     <div class="card-header bg6 c6">⑥ 咀嚼機能低下の評価</div>
     <div class="card-body">
-  <div class="view-toggle" style="padding:0 0 4px;">
-    <button class="active" onclick="toggleView(this,'test6','tool')">📏 測定</button>
-    <button onclick="toggleView(this,'test6','manual')">📖 マニュアル付き</button>
-  </div>
+
       <p style="font-size:0.8rem;margin-bottom:8px">以下の<strong>いずれか1つ</strong>の方法で評価します。</p>
       <div class="method-tabs">
         <button class="method-tab active" onclick="switchMethod(this,'m6a')">方法A：グルコース溶出量<br><span style="font-size:0.65rem;font-weight:400">※グルコセンサー使用</span></button>
@@ -1847,6 +1848,8 @@
       </div>
     </div>
   </div>
+
+<button class="manual-toggle-btn" onclick="toggleManual('test6',this)">📖 マニュアルをみる</button>
 </div>
 
 <!-- ──── ⑦ 嚥下機能低下 ──── -->
@@ -1854,10 +1857,7 @@
   <div class="card">
     <div class="card-header bg7 c7">⑦ 嚥下機能低下の評価</div>
     <div class="card-body">
-  <div class="view-toggle" style="padding:0 0 4px;">
-    <button class="active" onclick="toggleView(this,'test7','tool')">📏 測定</button>
-    <button onclick="toggleView(this,'test7','manual')">📖 マニュアル付き</button>
-  </div>
+
       <p style="font-size:0.8rem;margin-bottom:8px">以下の<strong>いずれか1つ</strong>の方法で評価します。</p>
       <div class="method-tabs">
         <button class="method-tab active" onclick="switchMethod(this,'m7b')">方法A：聖隷式嚥下質問紙<br><span style="font-size:0.65rem;font-weight:400">※15項目の質問・推奨</span></button>
@@ -1984,6 +1984,8 @@
       </div>
     </div>
   </div>
+
+<button class="manual-toggle-btn" onclick="toggleManual('test7',this)">📖 マニュアルをみる</button>
 </div>
 
 
@@ -2538,12 +2540,17 @@ if ('serviceWorker' in navigator) {
 
 
   // === View Toggle ===
-  function toggleView(btn,panelId,mode){
+  function toggleManual(panelId,btn){
     var panel=document.getElementById(panelId);
-    panel.querySelectorAll('.view-toggle button').forEach(function(b){b.classList.remove('active');});
-    btn.classList.add('active');
-    if(mode==='tool'){panel.classList.add('test-compact');}
-    else{panel.classList.remove('test-compact');}
+    if(panel.classList.contains('show-manual')){
+      panel.classList.remove('show-manual');
+      btn.classList.remove('open');
+      btn.textContent='📖 マニュアルをみる';
+    }else{
+      panel.classList.add('show-manual');
+      btn.classList.add('open');
+      btn.textContent='📖 マニュアルをとじる';
+    }
   }
 
   // === Copy Karte Text ===
