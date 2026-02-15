@@ -744,7 +744,8 @@
 .patient-header-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 4px 8px;
   background: rgba(0,0,0,0.15);
   border-radius: 6px;
   padding: 4px 10px;
@@ -1134,18 +1135,21 @@
         <div class="numpad-wrap">
           <div class="numpad-display" id="bact-display">--</div>
           <div class="numpad-grid">
-            <button class="numpad-btn" onclick="bactInput('1')">1</button>
-            <button class="numpad-btn" onclick="bactInput('2')">2</button>
-            <button class="numpad-btn" onclick="bactInput('3')">3</button>
+            <button class="numpad-btn" onclick="bactInput('7')">7</button>
+            <button class="numpad-btn" onclick="bactInput('8')">8</button>
+            <button class="numpad-btn" onclick="bactInput('9')">9</button>
             <button class="numpad-btn np-clear" onclick="bactInput('C')">C</button>
             <button class="numpad-btn" onclick="bactInput('4')">4</button>
             <button class="numpad-btn" onclick="bactInput('5')">5</button>
             <button class="numpad-btn" onclick="bactInput('6')">6</button>
             <button class="numpad-btn np-clear" onclick="bactInput('BS')">←</button>
-            <button class="numpad-btn" onclick="bactInput('7')">7</button>
-            <button class="numpad-btn" onclick="bactInput('8')">8</button>
-            <button class="numpad-btn" onclick="bactInput('9')">9</button>
-            <button class="numpad-btn np-ok" onclick="calcBact()">OK</button>
+            <button class="numpad-btn" onclick="bactInput('1')">1</button>
+            <button class="numpad-btn" onclick="bactInput('2')">2</button>
+            <button class="numpad-btn" onclick="bactInput('3')">3</button>
+            <button class="numpad-btn np-ok" onclick="calcBact()" style="grid-row:span 2;">OK</button>
+            <button class="numpad-btn" onclick="bactInput('0')">0</button>
+            <button class="numpad-btn" onclick="bactInput('00')">00</button>
+            <button class="numpad-btn" onclick="bactInput(',')">，</button>
           </div>
         </div>
         <div class="criteria">
@@ -2298,7 +2302,7 @@
   function bactInput(k){
     if(k==='C'){bactVal='';document.getElementById('bact-display').textContent='--';return;}
     if(k==='BS'){bactVal=bactVal.slice(0,-1);document.getElementById('bact-display').textContent=bactVal||'--';return;}
-    if(bactVal.length<2)bactVal+=k;
+    if(bactVal.length<15)bactVal+=k;
     document.getElementById('bact-display').textContent=bactVal;
   }
   function calcBact(){
