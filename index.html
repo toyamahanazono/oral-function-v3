@@ -2448,7 +2448,7 @@
         var sm2=srel.textContent.match(/B:\s*(\d+)/);
         var sm3=srel.textContent.match(/C:\s*(\d+)/);
         var sa=sm1?parseInt(sm1[1]):0,sb2=sm2?parseInt(sm2[1]):0,sc=sm3?parseInt(sm3[1]):0;
-        seireiTab='A:'+sa+' B:'+sb2+' C:'+sc+' ('+((sa*4+sb2*1))+'点)';
+        seireiTab='A:'+sa+' B:'+sb2+' C:'+sc;
       }
     }
     var mnames={tci:'TCI',bacteria:'細菌',moisture:'水分計',saxon:'サクソン',oramo:'Oramo',ps2f:'PSⅡ(F)',ps2n:'PSⅡ(NF)',ps1:'PS旧',teeth:'残存歯',glucose:'グルコース',score:'スコア',seirei:'聖隷式',eat10:'EAT-10'};
