@@ -897,13 +897,20 @@
 .manual-toggle-btn { width:100%; padding:10px; margin:12px 0 4px; border:2px solid var(--teal); border-radius:10px; background:#fff; color:var(--teal); font-size:0.8rem; font-weight:700; cursor:pointer; font-family:inherit; }
 .manual-toggle-btn.open { background:var(--teal); color:#fff; }
 
-/* === Bacteria Level Buttons === */
-.bact-level-grid { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin:10px 0; }
-.bact-level-btn { flex:1; min-width:40px; padding:12px 4px; border:2px solid var(--grey-200); border-radius:10px; background:#fff; font-size:0.9rem; font-weight:700; font-family:inherit; cursor:pointer; transition:all 0.15s; color:var(--grey-900); -webkit-tap-highlight-color:transparent; }
-.bact-level-btn:active { transform:scale(0.95); }
-.bact-level-btn.selected { border-color:var(--teal); background:var(--teal); color:#fff; }
-.bact-level-btn.bact-level-fail { color:#C62828; border-color:#FFCDD2; }
-.bact-level-btn.bact-level-fail.selected { background:#C62828; border-color:#C62828; color:#fff; }
+/* === Bacteria Level Bar === */
+.bact-bar-wrap { margin:12px 0 4px; position:relative; }
+.bact-bar-title { font-size:0.7rem; font-weight:700; color:var(--grey-600); margin-bottom:4px; text-align:center; }
+.bact-bar { display:flex; height:32px; border-radius:6px; overflow:hidden; border:1px solid var(--grey-200); }
+.bact-bar-seg { display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:#fff; position:relative; transition:opacity 0.3s; }
+.bact-seg-pass { background:linear-gradient(135deg,#66BB6A,#43A047); }
+.bact-seg-warn { background:linear-gradient(135deg,#FFA726,#F57C00); }
+.bact-seg-fail { background:linear-gradient(135deg,#EF5350,#C62828); }
+.bact-bar-seg.active { box-shadow:inset 0 0 0 2px rgba(255,255,255,0.8); }
+.bact-bar-seg.dimmed { opacity:0.35; }
+.bact-bar-ticks { display:flex; justify-content:space-between; font-size:0.5rem; color:var(--grey-600); margin-top:2px; padding:0 0; }
+.bact-tick-crit { font-weight:900; color:#C62828; }
+.bact-bar-pointer { position:absolute; bottom:38px; transition:left 0.4s ease; display:none; }
+.bact-bar-pointer::after { content:'▼'; font-size:0.9rem; color:var(--teal); font-weight:900; position:relative; left:-6px; }
 
 /* === Compact Numpad === */
 .numpad-wrap { margin:4px 0; max-width:280px; }
@@ -1141,24 +1148,51 @@
       <div class="method-panel" id="m1b">
         
         <div class="app-input-section">
-          <div class="app-input-title" style="color:#00897B;">📝 細菌カウンタ レベル選択</div>
-          <div class="app-input-subtitle">表示されたレベルをタップしてください</div>
-          <div class="bact-level-grid">
-            <button class="bact-level-btn" onclick="selectBactLevel(1)">Lv.1</button>
-            <button class="bact-level-btn" onclick="selectBactLevel(2)">Lv.2</button>
-            <button class="bact-level-btn" onclick="selectBactLevel(3)">Lv.3</button>
-            <button class="bact-level-btn" onclick="selectBactLevel(4)">Lv.4</button>
-            <button class="bact-level-btn bact-level-fail" onclick="selectBactLevel(5)">Lv.5</button>
-            <button class="bact-level-btn bact-level-fail" onclick="selectBactLevel(6)">Lv.6</button>
-            <button class="bact-level-btn bact-level-fail" onclick="selectBactLevel(7)">Lv.7</button>
+          <div class="app-input-title" style="color:#00897B;">📝 細菌数入力（CFU/mL）</div>
+          <div class="app-input-subtitle">測定された細菌数を入力してください</div>
+          <div class="numpad-wrap">
+            <div class="numpad-display" id="bact-display">-- CFU/mL</div>
+            <div class="numpad-grid">
+              <button class="numpad-btn" onclick="bactInput('7')">7</button>
+              <button class="numpad-btn" onclick="bactInput('8')">8</button>
+              <button class="numpad-btn" onclick="bactInput('9')">9</button>
+              <button class="numpad-btn np-clear" onclick="bactInput('C')">C</button>
+              <button class="numpad-btn" onclick="bactInput('4')">4</button>
+              <button class="numpad-btn" onclick="bactInput('5')">5</button>
+              <button class="numpad-btn" onclick="bactInput('6')">6</button>
+              <button class="numpad-btn np-clear" onclick="bactInput('BS')">←</button>
+              <button class="numpad-btn" onclick="bactInput('1')">1</button>
+              <button class="numpad-btn" onclick="bactInput('2')">2</button>
+              <button class="numpad-btn" onclick="bactInput('3')">3</button>
+              <button class="numpad-btn np-ok" onclick="calcBact()" style="grid-row:span 2;">OK</button>
+              <button class="numpad-btn" onclick="bactInput('0')">0</button>
+              <button class="numpad-btn" onclick="bactInput('00')">00</button>
+              <button class="numpad-btn" onclick="bactInput('.')">.</button>
+            </div>
           </div>
-          <button onclick="selectBactLevel(0)" style="width:100%;padding:6px;border:1.5px solid #E0E0E0;border-radius:8px;background:#fff;font-size:0.75rem;font-weight:600;color:#757575;cursor:pointer;font-family:inherit;margin-top:6px;">🔄 リセット</button>
+          <!-- Bacteria Level Bar -->
+          <div class="bact-bar-wrap" id="bact-bar-wrap">
+            <div class="bact-bar-title">レベルスケール</div>
+            <div class="bact-bar">
+              <div class="bact-bar-seg bact-seg-pass" data-lv="1"><span>Lv1</span></div>
+              <div class="bact-bar-seg bact-seg-pass" data-lv="2"><span>Lv2</span></div>
+              <div class="bact-bar-seg bact-seg-pass" data-lv="3"><span>Lv3</span></div>
+              <div class="bact-bar-seg bact-seg-warn" data-lv="4"><span>Lv4</span></div>
+              <div class="bact-bar-seg bact-seg-fail" data-lv="5"><span>Lv5</span></div>
+              <div class="bact-bar-seg bact-seg-fail" data-lv="6"><span>Lv6</span></div>
+              <div class="bact-bar-seg bact-seg-fail" data-lv="7"><span>Lv7</span></div>
+            </div>
+            <div class="bact-bar-ticks">
+              <span>10⁵</span><span>10⁵·⁵</span><span>10⁶</span><span class="bact-tick-crit">10⁶·⁵</span><span>10⁷</span><span>10⁷·⁵</span><span>10⁸</span>
+            </div>
+            <div class="bact-bar-pointer" id="bact-pointer"></div>
+          </div>
         </div>
         <div class="criteria">
           <div class="criteria-icon">🔴</div>
           <div>
             <div class="criteria-label">該当基準</div>
-            <div class="criteria-value">レベル5以上（3.162 × 10⁶ CFU/mL 以上）</div>
+            <div class="criteria-value">3.162 × 10⁶ CFU/mL 以上（レベル4以上）</div>
           </div>
         </div>
 
@@ -2040,7 +2074,7 @@
   <div class="result-card" style="display:none;">
     <div class="result-card-header" style="background:var(--grey-100);">⚙️ 判定方法選択</div>
     <div class="result-card-body">
-      <div class="input-group"><label>① 口腔衛生の検査方法</label><select id="method-test1" onchange="judgeResults()"><option value="tci">TCI（%）：50%以上で該当</option><option value="bacteria">細菌カウンタ（CFU/mL）：レベル5以上で該当</option></select></div>
+      <div class="input-group"><label>① 口腔衛生の検査方法</label><select id="method-test1" onchange="judgeResults()"><option value="tci">TCI（%）：50%以上で該当</option><option value="bacteria">細菌カウンタ（CFU/mL）：3.162×10⁶以上で該当</option></select></div>
       <div class="input-group"><label>② 口腔乾燥の検査方法</label><select id="method-test2" onchange="judgeResults()"><option value="moisture">口腔水分計：27.0未満で該当</option><option value="saxon">サクソンテスト（g）：2g以下で該当</option></select></div>
       <div class="input-group"><label>③ 咬合力の検査方法</label><select id="method-test3" onchange="judgeResults()"><option value="oramo" selected>Oramo-bf（N）：375N未満</option><option value="ps2f">プレスケールⅡ フィルタあり（N）：350N未満</option><option value="ps2n">プレスケールⅡ フィルタなし（N）：500N未満</option><option value="ps1">プレスケール旧（N）：200N未満</option><option value="teeth">残存歯数（本）：20本未満</option></select></div>
       <div class="input-group"><label>⑥ 咀嚼機能の検査方法</label><select id="method-test6" onchange="judgeResults()"><option value="glucose">グルコース濃度（mg/dL）：100未満で該当</option><option value="score">咀嚼能率スコア：2以下で該当</option></select></div>
@@ -2299,23 +2333,60 @@
   function calcTeeth(){var val=document.getElementById('teeth-count').value,el=document.getElementById('teeth-result');if(!val&&val!=='0'){el.className='result-value result-none';el.textContent='判定: ---';return;}var v=parseInt(val);if(v<20){el.className='result-value result-fail';el.textContent=v+'本 → 該当（20本未満）';}else{el.className='result-value result-pass';el.textContent=v+'本 → 正常';}}
 
 
-  // === Bacteria Counter (Level Select) ===
-  var bactSelectedLevel=0;
-  function selectBactLevel(lv){
-    var el=document.getElementById('bact-result');
-    // Reset all button styles
-    var btns=document.querySelectorAll('.bact-level-btn');
-    btns.forEach(function(b){b.classList.remove('selected');});
-    if(lv===0){
-      bactSelectedLevel=0;
-      el.className='result-value result-none';el.textContent='判定: ---';
-      syncFromTabs();return;
+  // === Bacteria Counter (CFU/mL input + Level Bar) ===
+  var bactVal='';
+  // Level boundaries: log10 scale, 0.5 increments from 5.0
+  // Lv1:<10^5, Lv2:10^5~10^5.5, Lv3:10^5.5~10^6, Lv4:10^6~10^6.5(=3,162,278), Lv5:10^6.5~10^7, Lv6:10^7~10^7.5, Lv7:>=10^7.5
+  var bactBounds=[1e5, 3.162e5, 1e6, 3.162e6, 1e7, 3.162e7, 1e8];
+  function getBactLevel(v){
+    if(v<bactBounds[0]) return 1;
+    for(var i=1;i<bactBounds.length;i++){if(v<bactBounds[i]) return i+1;}
+    return 7;
+  }
+  function updateBactBar(v){
+    var segs=document.querySelectorAll('.bact-bar-seg');
+    var pointer=document.getElementById('bact-pointer');
+    if(!v||v<=0){
+      segs.forEach(function(s){s.classList.remove('active','dimmed');});
+      pointer.style.display='none';
+      return;
     }
-    bactSelectedLevel=lv;
-    // Highlight selected button
-    btns.forEach(function(b){if(b.textContent==='Lv.'+lv)b.classList.add('selected');});
-    if(lv>=5){el.className='result-value result-fail';el.textContent='レベル'+lv+' → 該当（レベル5以上）';}
-    else{el.className='result-value result-pass';el.textContent='レベル'+lv+' → 正常';}
+    var lv=getBactLevel(v);
+    segs.forEach(function(s){
+      var slv=parseInt(s.dataset.lv);
+      s.classList.remove('active','dimmed');
+      if(slv===lv) s.classList.add('active');
+      else s.classList.add('dimmed');
+    });
+    // Position pointer: map log10(v) to bar position
+    var logMin=5, logMax=8; // 10^5 to 10^8
+    var logV=Math.log10(Math.max(v,1));
+    var pct=((logV-logMin)/(logMax-logMin))*100;
+    pct=Math.max(0,Math.min(100,pct));
+    pointer.style.display='block';
+    pointer.style.left=pct+'%';
+  }
+  function bactInput(k){
+    if(k==='C'){bactVal='';document.getElementById('bact-display').textContent='-- CFU/mL';updateBactBar(0);return;}
+    if(k==='BS'){bactVal=bactVal.slice(0,-1);document.getElementById('bact-display').textContent=bactVal?(bactVal+' CFU/mL'):'-- CFU/mL';if(!bactVal)updateBactBar(0);return;}
+    if(k==='.'&&bactVal.includes('.'))return;
+    if(k==='00'&&bactVal==='')k='0';
+    if(bactVal.length<15)bactVal+=k;
+    document.getElementById('bact-display').textContent=bactVal+' CFU/mL';
+  }
+  function calcBact(){
+    var v=parseFloat(bactVal)||0;
+    var el=document.getElementById('bact-result');
+    if(!bactVal){el.className='result-value result-none';el.textContent='判定: ---';updateBactBar(0);syncFromTabs();return;}
+    var lv=getBactLevel(v);
+    updateBactBar(v);
+    // Format display value
+    var dispV=v>=10000?(v/10000).toFixed(1)+'×10⁴':v.toString();
+    if(v>=1e6) dispV=(v/1e6).toFixed(2)+'×10⁶';
+    if(v>=1e7) dispV=(v/1e7).toFixed(2)+'×10⁷';
+    if(v>=1e8) dispV=(v/1e8).toFixed(2)+'×10⁸';
+    if(v>=3.162e6){el.className='result-value result-fail';el.textContent=dispV+' CFU/mL（Lv'+lv+'）→ 該当';}
+    else{el.className='result-value result-pass';el.textContent=dispV+' CFU/mL（Lv'+lv+'）→ 正常';}
     syncFromTabs();
   }
 
@@ -2363,7 +2434,7 @@
     var m1b=document.getElementById('m1b');
     if(m1b&&m1b.classList.contains('active')){
       el=document.getElementById('bact-result');
-      if(el&&!el.textContent.includes('---')){m=el.textContent.match(/レベル(\d+)/);if(m){document.getElementById('res-test1').value=m[1];document.getElementById('method-test1').value='bacteria';}}
+      if(el&&!el.textContent.includes('---')){document.getElementById('res-test1').value=bactVal;document.getElementById('method-test1').value='bacteria';}
     }else{
       el=document.getElementById('tci-result');
       if(el&&!el.textContent.includes('---')){m=el.textContent.match(/([\d.]+)%/);if(m){document.getElementById('res-test1').value=m[1];document.getElementById('method-test1').value='tci';}}
@@ -2477,6 +2548,7 @@
       }else if(ve&&ve.value.trim()){
         var txt=ve.value.trim()+mu;
         if(mn&&(i===1||i===2||i===3||i===6||i===7))txt=mn+' '+txt;
+        if(i===1&&mel&&mel.value==='bacteria'){var bv=parseFloat(ve.value);if(!isNaN(bv))txt='細菌 Lv'+getBactLevel(bv);}
         if(i===7&&seireiTab&&mel7&&mel7.value==='seirei')txt='聖隷式 '+seireiTab;
         if(i===4&&typeof dkResults!=='undefined'){
           var pp=dkResults.pa?dkResults.pa.rate.toFixed(1):'--';
@@ -2493,7 +2565,7 @@
     }
     // Update result method labels
     var mLabels={
-      tci:'TCI 50%以上',bacteria:'細菌カウンタ Lv5以上',
+      tci:'TCI 50%以上',bacteria:'細菌カウンタ 3.162×10⁶CFU/mL以上',
       moisture:'口腔水分計 27.0未満',saxon:'サクソンテスト 2g以下',
       oramo:'Oramo-bf 375N未満',ps2f:'PSⅡフィルタあり 350N未満',ps2n:'PSⅡフィルタなし 500N未満',ps1:'PS旧 200N未満',teeth:'残存歯 20本未満',
       glucose:'グルコース 100mg/dL未満',score:'咀嚼能率スコア 2以下',
@@ -2591,6 +2663,7 @@ if ('serviceWorker' in navigator) {
         continue;
       }
       if(!val){lines.push(nums[i-1]+names[i-1]+': 未入力');}
+      else if(i===1&&mel&&mel.value==='bacteria'){var bnum=parseFloat(val);var blv=getBactLevel(bnum);lines.push(nums[i-1]+names[i-1]+': '+mn+' '+val+'CFU/mL（Lv'+blv+'）→ '+st);}
       else{lines.push(nums[i-1]+names[i-1]+': '+(mn?mn+' ':'')+val+units[i-1]+' → '+st);}
     }
     lines.push('該当: '+document.getElementById('diag-count').textContent+'/7 → '+document.getElementById('diag-verdict').textContent);
