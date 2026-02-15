@@ -897,6 +897,14 @@
 .manual-toggle-btn { width:100%; padding:10px; margin:12px 0 4px; border:2px solid var(--teal); border-radius:10px; background:#fff; color:var(--teal); font-size:0.8rem; font-weight:700; cursor:pointer; font-family:inherit; }
 .manual-toggle-btn.open { background:var(--teal); color:#fff; }
 
+/* === Bacteria Level Buttons === */
+.bact-level-grid { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin:10px 0; }
+.bact-level-btn { flex:1; min-width:40px; padding:12px 4px; border:2px solid var(--grey-200); border-radius:10px; background:#fff; font-size:0.9rem; font-weight:700; font-family:inherit; cursor:pointer; transition:all 0.15s; color:var(--grey-900); -webkit-tap-highlight-color:transparent; }
+.bact-level-btn:active { transform:scale(0.95); }
+.bact-level-btn.selected { border-color:var(--teal); background:var(--teal); color:#fff; }
+.bact-level-btn.bact-level-fail { color:#C62828; border-color:#FFCDD2; }
+.bact-level-btn.bact-level-fail.selected { background:#C62828; border-color:#C62828; color:#fff; }
+
 /* === Compact Numpad === */
 .numpad-wrap { margin:4px 0; max-width:280px; }
 .numpad-grid { gap:3px !important; }
@@ -1132,31 +1140,25 @@
       <!-- 方法B: 細菌カウンタ -->
       <div class="method-panel" id="m1b">
         
-        <div class="numpad-wrap">
-          <div class="numpad-display" id="bact-display">--</div>
-          <div class="numpad-grid">
-            <button class="numpad-btn" onclick="bactInput('7')">7</button>
-            <button class="numpad-btn" onclick="bactInput('8')">8</button>
-            <button class="numpad-btn" onclick="bactInput('9')">9</button>
-            <button class="numpad-btn np-clear" onclick="bactInput('C')">C</button>
-            <button class="numpad-btn" onclick="bactInput('4')">4</button>
-            <button class="numpad-btn" onclick="bactInput('5')">5</button>
-            <button class="numpad-btn" onclick="bactInput('6')">6</button>
-            <button class="numpad-btn np-clear" onclick="bactInput('BS')">←</button>
-            <button class="numpad-btn" onclick="bactInput('1')">1</button>
-            <button class="numpad-btn" onclick="bactInput('2')">2</button>
-            <button class="numpad-btn" onclick="bactInput('3')">3</button>
-            <button class="numpad-btn np-ok" onclick="calcBact()" style="grid-row:span 2;">OK</button>
-            <button class="numpad-btn" onclick="bactInput('0')">0</button>
-            <button class="numpad-btn" onclick="bactInput('00')">00</button>
-            <button class="numpad-btn" onclick="bactInput(',')">，</button>
+        <div class="app-input-section">
+          <div class="app-input-title" style="color:#00897B;">📝 細菌カウンタ レベル選択</div>
+          <div class="app-input-subtitle">表示されたレベルをタップしてください</div>
+          <div class="bact-level-grid">
+            <button class="bact-level-btn" onclick="selectBactLevel(1)">Lv.1</button>
+            <button class="bact-level-btn" onclick="selectBactLevel(2)">Lv.2</button>
+            <button class="bact-level-btn" onclick="selectBactLevel(3)">Lv.3</button>
+            <button class="bact-level-btn" onclick="selectBactLevel(4)">Lv.4</button>
+            <button class="bact-level-btn bact-level-fail" onclick="selectBactLevel(5)">Lv.5</button>
+            <button class="bact-level-btn bact-level-fail" onclick="selectBactLevel(6)">Lv.6</button>
+            <button class="bact-level-btn bact-level-fail" onclick="selectBactLevel(7)">Lv.7</button>
           </div>
+          <button onclick="selectBactLevel(0)" style="width:100%;padding:6px;border:1.5px solid #E0E0E0;border-radius:8px;background:#fff;font-size:0.75rem;font-weight:600;color:#757575;cursor:pointer;font-family:inherit;margin-top:6px;">🔄 リセット</button>
         </div>
         <div class="criteria">
           <div class="criteria-icon">🔴</div>
           <div>
             <div class="criteria-label">該当基準</div>
-            <div class="criteria-value">3.162 × 10⁶ CFU/mL 以上</div>
+            <div class="criteria-value">レベル5以上（3.162 × 10⁶ CFU/mL 以上）</div>
           </div>
         </div>
 
@@ -2297,20 +2299,23 @@
   function calcTeeth(){var val=document.getElementById('teeth-count').value,el=document.getElementById('teeth-result');if(!val&&val!=='0'){el.className='result-value result-none';el.textContent='判定: ---';return;}var v=parseInt(val);if(v<20){el.className='result-value result-fail';el.textContent=v+'本 → 該当（20本未満）';}else{el.className='result-value result-pass';el.textContent=v+'本 → 正常';}}
 
 
-  // === Bacteria Counter ===
-  var bactVal='';
-  function bactInput(k){
-    if(k==='C'){bactVal='';document.getElementById('bact-display').textContent='--';return;}
-    if(k==='BS'){bactVal=bactVal.slice(0,-1);document.getElementById('bact-display').textContent=bactVal||'--';return;}
-    if(bactVal.length<15)bactVal+=k;
-    document.getElementById('bact-display').textContent=bactVal;
-  }
-  function calcBact(){
-    var v=parseInt(bactVal)||0;
+  // === Bacteria Counter (Level Select) ===
+  var bactSelectedLevel=0;
+  function selectBactLevel(lv){
     var el=document.getElementById('bact-result');
-    if(!bactVal){el.className='result-value result-none';el.textContent='判定: ---';return;}
-    if(v>=5){el.className='result-value result-fail';el.textContent='レベル'+v+' → 該当（レベル5以上）';}
-    else{el.className='result-value result-pass';el.textContent='レベル'+v+' → 正常';}
+    // Reset all button styles
+    var btns=document.querySelectorAll('.bact-level-btn');
+    btns.forEach(function(b){b.classList.remove('selected');});
+    if(lv===0){
+      bactSelectedLevel=0;
+      el.className='result-value result-none';el.textContent='判定: ---';
+      syncFromTabs();return;
+    }
+    bactSelectedLevel=lv;
+    // Highlight selected button
+    btns.forEach(function(b){if(b.textContent==='Lv.'+lv)b.classList.add('selected');});
+    if(lv>=5){el.className='result-value result-fail';el.textContent='レベル'+lv+' → 該当（レベル5以上）';}
+    else{el.className='result-value result-pass';el.textContent='レベル'+lv+' → 正常';}
     syncFromTabs();
   }
 
